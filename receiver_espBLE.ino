@@ -33,18 +33,18 @@ static void notifyCallback(
     if (receivedData.charAt(receivedData.length()-2) == '1') {
 
       //for servo testing
-      // servo1.write(0);
-      // delay(1000);
-      // servo1.write(60);
+      servo1.write(0);
+      delay(1000);
+      servo1.write(60);
 
       Serial.println("on");
 
     }
 
     else if (receivedData.charAt(receivedData.length()-2) == '2') {
-        // servo2.write(0);
-        // delay(1000);
-        // servo2.write(60);
+        servo2.write(0);
+        delay(1000);
+        servo2.write(60);
         Serial.println("off");
     }
   }
