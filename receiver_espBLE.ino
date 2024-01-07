@@ -10,7 +10,7 @@ const int servo2_pin = 5;
 Servo servo1;
 Servo servo2;
 
-//Variables used for BLE. I did not write this segment. This was part of an example code from the library I was using. 
+//Variables used for BLE. Adopted Code. 
 static BLEUUID serviceUUID("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
 static BLEUUID    charUUID("99d918d6-2f15-11ee-be56-0242ac120002");
 
@@ -65,6 +65,7 @@ static void notifyCallback(
     }
   }
 
+//Adopted Code
 class MyClientCallback : public BLEClientCallbacks {
   void onConnect(BLEClient* pclient) {
     Serial.println("onConnect");
@@ -76,7 +77,7 @@ class MyClientCallback : public BLEClientCallbacks {
   }
 };
 
-
+//Adopted Code
 bool connectToServer() {
     Serial.print("Forming a connection to ");
     Serial.println(myDevice->getAddress().toString().c_str());
@@ -125,6 +126,7 @@ bool connectToServer() {
     return true;
 }
 
+//Adopted Code
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
 
   void onResult(BLEAdvertisedDevice advertisedDevice) {
@@ -171,6 +173,7 @@ void setup() {
   servo2.write(60);
 }
 
+//Adopted Code
 void loop() {
   if (tryConnect == true) {
     if (connectToServer()) {
