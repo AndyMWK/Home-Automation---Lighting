@@ -1,13 +1,16 @@
+//BLEDevice.h comes from a library that was downloaded through the Arduino IDE
 #include "BLEDevice.h"
 #include <Servo.h>
 
+//---Pin Definitions---
 const int servo1_pin = 4;
 const int servo2_pin = 5;
 
+//---Servo Object Creations---
 Servo servo1;
 Servo servo2;
 
-
+//Variables used for BLE. I did not write this segment. This was part of an example code from the library I was using. 
 static BLEUUID serviceUUID("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
 static BLEUUID    charUUID("99d918d6-2f15-11ee-be56-0242ac120002");
 
@@ -30,9 +33,21 @@ static void notifyCallback(
     Serial.println((char*)pData);
 
     String receivedData = String(*pData);
-    if (receivedData.charAt(receivedData.length()-2) == '1') {
 
-      //for servo testing
+    //I wrote this segment to control the servo motor to turn the light switch on and off. 
+    /*
+    
+    --------------------------------------------------------------------------------------------------
+    Explanation:
+    When I press 1 on my TV Remote, the received signal in hexadecimal always contains a '1' at the end. 
+    When I press 2 on my TV Remote, the received signal in hexadecimal always contsins a '2' at the end. 
+    Therefore, I check for 1 or 2 from the end of the received data to control the servo motor
+    --------------------------------------------------------------------------------------------------
+    
+    */
+
+    //Lights ON
+    if (receivedData.charAt(receivedData.length()-2) == '1') {
       servo1.write(0);
       delay(1000);
       servo1.write(60);
@@ -40,7 +55,8 @@ static void notifyCallback(
       Serial.println("on");
 
     }
-
+      
+    //Lights OFF
     else if (receivedData.charAt(receivedData.length()-2) == '2') {
         servo2.write(0);
         delay(1000);
@@ -131,9 +147,10 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
 
 void setup() {
 
-  
+  //---Serial Monitor Initalization
   Serial.begin(115200);
   
+  //The code associated with BLE below is provided by the example library I was using
   Serial.println("Starting Arduino BLE Client application...");
   BLEDevice::init("");
 
@@ -147,11 +164,13 @@ void setup() {
   pBLEScan->setActiveScan(true);
   pBLEScan->start(5, false);
 
+  //---Servo Motor Initialization--- I wrote this part
   servo1.attach(servo1_pin);
   servo2.attach(servo2_pin);
   servo1.write(60);
   servo2.write(60);
 }
+
 void loop() {
   if (tryConnect == true) {
     if (connectToServer()) {
