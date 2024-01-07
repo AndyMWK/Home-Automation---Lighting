@@ -1,4 +1,4 @@
-
+//All libraries downloaded from the Arduino IDE
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
 #include <IRutils.h>
@@ -7,12 +7,12 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 
-
+//---IR Receiver Initialization
 const int IR = 14;
 static IRrecv irReceiver(IR);
 static decode_results results;
 
-
+//---Adopted from example code to set up BLE Device---
 static BLEServer* pServer = NULL;
 static BLECharacteristic* pCharacteristic = NULL;
 
@@ -31,11 +31,14 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
+//---LED Pin Definition---
+#define LED_PIN 2
 
 void setup() {
-  // connect to the wi-fi network
+  //---Serial Monitor Initialization---
   Serial.begin(115200);
-  
+
+  //----Adopted from example code-----
   //Creates the BLE Device
   BLEDevice::init("ESP32");
 
@@ -69,66 +72,50 @@ void setup() {
   BLEDevice::startAdvertising();
   //Serial.println("Waiting a client connection to notify...");
 
-  //infrared receiver
+  //---Infrared Receiver Initialization---
   irReceiver.enableIRIn();
-
-  pinMode(2, OUTPUT);
+  //---LED Pin Initialization
+  pinMode(LED_PIN, OUTPUT);
 }
 
-
+//---Function Declaration---
+//This function will send the received infrared signal through BLE
 void sendSig(decode_results &results);
 
 
 void loop() {
-
-  // if (deviceConnected) {
-  //       pCharacteristic->setValue((uint8_t*)&value, 4);
-  //       pCharacteristic->notify();
-  //       value++;
-  //       delay(3); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
-  //       Serial.println("Value Sent");
-  //   }
-  //   // disconnecting
-  //   if (!deviceConnected && oldDeviceConnected) {
-  //       delay(500); // give the bluetooth stack the chance to get things ready
-  //       pServer->startAdvertising(); // restart advertising
-  //       Serial.println("start advertising");
-  //       oldDeviceConnected = deviceConnected;
-  //   }
-  //   // connecting
-  //   if (deviceConnected && !oldDeviceConnected) {
-  //       // do stuff here on connecting
-  //       oldDeviceConnected = deviceConnected;
-  //   }
+  //Check for any received infrared signals
   if(irReceiver.decode(&results)) {
 
-    
+    //Make sure that the BLE devices are connected
     while(!deviceConnected) {
       pServer->startAdvertising();
-      
-      
     } 
-    
-    if(deviceConnected) {
 
+    //Send information once its been confirmed that the BLE devices are connected
+    if(deviceConnected) {
       sendSig(results);
-      
     }
 
+    //Add a delay for the hardware to get ready to receive infrared signal again
     delay(1000);
     irReceiver.resume();
   }
 }
 
+//---Function Definition---
 void sendSig(decode_results &results) {
-
+    
+  //convert the received signal information to hexadecimal and send!
   char hexString[17];  
   sprintf(hexString, "%016llX", results.value);
   pCharacteristic->setValue(hexString);
   pCharacteristic->notify();
+
+  //---used for debugging---
   //serialPrintUint64(results.value, HEX);
 
-  digitalWrite(2, HIGH);
+  digitalWrite(LED_PIN, HIGH);
   delay(500);
-  digitalWrite(2, LOW);
+  digitalWrite(LED_PIN, LOW);
 }
